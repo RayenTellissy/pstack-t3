@@ -31,7 +31,7 @@ Call `orchestrator_capabilities` once per thread before the first `delegate_task
 | `Task` with a `model` (any pstack role with a real model) | `delegate_task` with `target: { providerInstanceId, model, options }` mapped with the Models table. One call per panel seat. |
 | `Task` with no `model`, or a role set to `inherit-parent` or `auto` | Your provider's native subagent tool (`Agent` in Claude with `run_in_background: false`, `spawn_agent` then wait in Codex). Without one, `delegate_task` with no `target`. |
 | `subagent_type: generalPurpose` | Drop it. `delegate_task` children are general-purpose. With a native tool, use its general type (`general-purpose` in Claude). |
-| `poteto-agent` | `delegate_task` whose `task` starts with the body of `<pstack>/agents/poteto-agent.md` (below its frontmatter), then the absolute path of `<pstack>/skills/poteto-mode/SKILL.md`, then the brief. The child reads that path; it does not search `~/.cursor/plugins/`. Use the `model:` line's slug only as a default, mapped with the Models table. |
+| `poteto-agent` | `delegate_task` whose `task` starts with the body of `<pstack>/agents/poteto-agent.md` (below its frontmatter), then the absolute path of `<pstack>/skills/poteto-mode/SKILL.md`, then the brief. The child reads that path; it does not search `~/.cursor/plugins/`. Ignore the file's `model:` line: the target comes from the delegate's role in Default roles. |
 | `comment-sicko` | `delegate_task` with `role: "review"` whose `task` is the body of `<pstack>/agents/comment-sicko.md`, then the scope. Its first output line is part of the persona, not an error. |
 | `readonly: true` | `role: "research"` or `"review"`, and the brief says "do not edit files". Do not narrow `runtimeMode` for this: a narrow mode pauses for human approval, it is not read-only. Run `git status` afterward. |
 | `readonly: false` | Default. |
@@ -48,17 +48,67 @@ Link a child thread in your reply by the `link` its result carries, verbatim.
 
 ## Models
 
-A pstack role value in T3 Code is `<providerInstanceId>/<model> <effort>`, such as `claudeAgent/claude-opus-5-5 xhigh` or `codex/gpt-6.1-sol high`. The effort is the last token. `inherit-parent` and `auto` mean "run on the parent thread's model".
+A pstack role value in T3 Code is one of:
+
+- `<family> <effort>`, such as `opus high` or `fable medium`. The family is a Claude family (`opus`, `sonnet`, `haiku`, `fable`): use a `claudeAgent` instance with `canRunChildTask` and its newest listed `claude-<family>-*` model.
+- `<providerInstanceId>/<model> <effort>`, such as `codex/gpt-6.1-sol high`, for any provider.
+- `inherit-parent` or `auto`: run on the parent thread's model.
+
+The effort is the last token. Add `fast` after it to set `fastMode: true` where the model offers it.
+
+### Default roles
+
+These are pstack's defaults in T3 Code. They replace every default model slug written in the skills, including `poteto-mode`'s Subagents section, `arena`, `swarm`, `interrogate`, and the `model:` line in `poteto-agent`. A line in `~/.pstack/t3-models.md` overrides its role here.
+
+```
+feature, refactoring: opus high
+bug-fix: opus high
+perf-issue: opus high
+hillclimb: opus high
+judgment and prose: opus xhigh
+hardest tasks: opus xhigh
+how explorer: haiku high
+how explainer: opus high
+why investigators: opus high
+why synthesizer: opus xhigh
+reflect tooling: opus medium
+reflect judgment, divergent, synthesizer: opus xhigh
+arena runners: opus high, fable medium
+arena cross-judge pool: opus xhigh, fable medium
+swarm workers: opus high
+architect runners: opus xhigh, fable medium
+interrogate reviewers: opus xhigh, fable medium
+```
+
+### Where each role applies
+
+The skills read some of these roles themselves. For the rest, spawn as this table says.
+
+| Role | Used for |
+| --- | --- |
+| `feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb` | `poteto-mode` code delegates for that playbook, as the skill says. |
+| `judgment and prose` | `poteto-mode` prose and judgment delegates. |
+| `hardest tasks` | Where `poteto-mode` says to raise a role a step for the hardest or subtlest work, run that delegate on `hardest tasks` instead. |
+| `swarm workers` | `swarm` workers, verification, and trivial mechanical edits, as the skills say. |
+| `arena runners`, `interrogate reviewers` | One child per entry, as `arena` and `interrogate` say. |
+| `arena cross-judge pool` | The `arena` judge: the first entry from a vendor other than the parent's. When every entry shares the parent's vendor, use the first entry and say the judge is not cross-vendor. |
+| `how explorer`, `how explainer` | `how` step 1 runs as two children. The explorer (`role: "research"`, no edits) maps the files, entry points, and runtime flow behind the question and returns paths with line numbers and short excerpts. The explainer gets the question, the explorer's report, and the step 1 brief, reads what it needs, and writes the explanation. For a question one file answers, skip the explorer. |
+| `why investigators`, `why synthesizer` | `why` delegates. Spawn one investigator per lead (the change that introduced the target, each later change that altered it, outside sources when the trail is thin), each told to return quoted, cited evidence and no conclusion. Then one synthesizer gets the question and every report and writes the answer under the skill's rules. A target with one short trail skips the investigators. |
+| `reflect tooling` | `reflect`: one child reads the transcript (`t3_thread_read` with `view: "activity"`, paging back through `earlierPosition`) and returns candidate findings with quotes, plus the skills the session used. |
+| `reflect judgment, divergent, synthesizer` | `reflect`: a judgment child applies the skill's keep and drop rules to the candidates; a divergent child argues for the strongest dropped candidates and for skills that should have fired; a synthesizer merges both into Accepted, Rejected, and Backlog. You present that and wait for approval. |
+| `architect runners` | `architect`: one child per entry sketches one of the two shapes, each told to differ from the other on types, signatures, or module boundaries. You pick between them by the skill's rule. The large-design path still goes to `arena`. |
+
+### Mapping Cursor slugs
 
 | Cursor | T3 Code |
 | --- | --- |
-| `claude-<family>-<version>-<effort>[-fast]`, such as `claude-opus-5-5-xhigh-fast` | A `claudeAgent` instance with `canRunChildTask`, `model: "claude-<family>-<version>"`, `options: { effort: "<effort>" }`. Drop `-fast` unless the role value says `fast`, then add `fastMode: true` when the model offers it. |
+| `claude-<family>-<version>-<effort>[-fast]`, such as `claude-opus-5-5-xhigh-fast` | Use the role's value from Default roles. With no role, a `claudeAgent` instance with `canRunChildTask`, `model: "claude-<family>-<version>"`, `options: { effort: "<effort>" }`, and `-fast` dropped. |
 | `gpt-*` | A `codex` instance, the named model or its closest listed model, `options: { reasoningEffort: "<effort>" }`. |
 | `grok-*` | A `grok` instance. Pass the effort only if the model lists an effort option. |
 | `gemini-*` | An `antigravity` instance with the closest Gemini model. When none can run a child task, give the seat to a model from a vendor the panel does not already have (usually Codex), because the seat exists for vendor diversity. Say which model took it. |
 | `auto` or `inherit-parent` | Omit `target`, or use your native subagent tool. |
 | Any option name | Use the effort-like option id the model lists in `orchestrator_capabilities` (`effort`, `reasoningEffort`). Never send an option the model does not list. |
-| `pstack-models.mdc`, `~/.cursor/rules/pstack-models.mdc` | `~/.pstack/t3-models.md`. No provider loads it on its own: read it at the start of any skill that picks a model. If the file or the role's line is missing, map the skill's default slug with this table. |
+| `pstack-models.mdc`, `~/.cursor/rules/pstack-models.mdc` | `~/.pstack/t3-models.md`. No provider loads it on its own: read it at the start of any skill that picks a model. If the file or the role's line is missing, use the role's value from Default roles. |
 
 If `delegate_task` rejects a target, never pass it again. Fall back as the skill says, then to the closest model of the same family that `orchestrator_capabilities` lists, then omit `target`. Say so.
 

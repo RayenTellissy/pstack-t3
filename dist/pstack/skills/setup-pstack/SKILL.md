@@ -7,7 +7,7 @@ description: Configure which models pstack uses per role and at what reasoning b
 
 Write `~/.pstack/t3-models.md`, the file that sets pstack's model per role in T3 Code. Every pstack skill that picks a model reads it, and falls back to the skill default for a missing role.
 
-Read [the T3 Code adapter](../../docs/harness/t3-code.md) first. Its Models table defines the value format, `<providerInstanceId>/<model> <effort>`, and how Cursor default slugs map to T3 Code.
+Read [the T3 Code adapter](../../docs/harness/t3-code.md) first. Its Models section defines the value format (`opus high`, or `<providerInstanceId>/<model> <effort>` for any provider), the default roles, and where each role applies.
 
 ## Steps
 
@@ -19,14 +19,11 @@ Tell the user which provider instances cannot run child tasks and why, from thei
 
 ### 2. Load current state
 
-The default mapping is the file shape in step 5. If `~/.pstack/t3-models.md` exists, read it and treat its `# budget` line and role values as the current choices. Otherwise start from the defaults. Drop a line whose role is not in step 5 and tell the user.
+The default mapping is the file shape in step 5, the same as the adapter's Default roles. If `~/.pstack/t3-models.md` exists, read it and treat its `# budget` line and role values as the current choices. Otherwise start from the defaults. Drop a line whose role is not in step 5 and tell the user.
 
-Resolve each default against the detected set before showing it:
+A family value such as `opus high` is detected when a `claudeAgent` instance that can run a child task lists a `claude-<family>-*` model with that effort. Mark any value that is not detected as needing a choice. With no Claude instance able to run child tasks, every default needs a choice: offer the detected models.
 
-- A default whose model is detected keeps it.
-- A `claudeAgent/...` default whose instance id differs (for example `claudeAgent_2`) takes the detected instance that runs that model.
-- The third panel seat (`codex/gpt-6.1-sol`) exists for vendor diversity. When no Codex instance can run a child task, give it to the strongest detected model from a vendor the panel does not already have (Antigravity Gemini, Grok, then any other). With only Claude available, use `claudeAgent/claude-sonnet-5-5` and say the panel has one vendor.
-- Any other undetected default is marked as needing a choice.
+The default panels (`arena runners`, `arena cross-judge pool`, `architect runners`, `interrogate reviewers`) are Claude-only. When another vendor can run child tasks, mention once that adding it as a panel entry gives cross-vendor review, and leave the panels as they are unless the user asks.
 
 ### 3. Budget, map, and confirm
 
@@ -38,7 +35,7 @@ Resolve each default against the detected set before showing it:
 
 **(b) Apply it.** Each role's target effort is its default effort moved down by the budget: `large` keeps it, `medium` lowers one step, `small` lowers two, on the ladder `xhigh` > `high` > `medium` > `low`. No role runs above `xhigh`, and the bottom stays at `low`. Set every real entry's effort to its role's target, panel entries included. If the model does not list that effort, use its highest listed effort at or below the target. `inherit-parent`, `auto`, and `default` efforts do not change. Keep any role the user changed on a previous run.
 
-**(c) Show the roles and confirm.** Show every role and its value, mark each one needing a choice, and list dropped lines. Ask whether to accept or change specific roles, offering detected models at `xhigh` or below plus `inherit-parent` and `auto` (both mean the role runs on the parent thread's model). Panel roles (`arena runners`, `interrogate reviewers`) are lists, and one child runs per entry, so the length sets the count. `arena cross-judge pool` is a list in preference order; Arena runs one judge from a vendor other than the parent's, and an `inherit-parent` or `auto` entry never judges. Fable, Opus, Sonnet, and Haiku are one vendor. `swarm workers` is the default model for every swarm worker.
+**(c) Show the roles and confirm.** Show every role and its value, mark each one needing a choice, and list dropped lines. Ask whether to accept or change specific roles, offering detected models at `xhigh` or below plus `inherit-parent` and `auto` (both mean the role runs on the parent thread's model). Panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) are lists, and one child runs per entry, so the length sets the count. `arena cross-judge pool` is a list in preference order; Arena runs one judge from a vendor other than the parent's, and an `inherit-parent` or `auto` entry never judges. Fable, Opus, Sonnet, and Haiku are one vendor, so with a Claude parent the default pool has no cross-vendor judge and Arena says so. `swarm workers` is the default model for every swarm worker. The adapter's "Where each role applies" table says what every other role runs.
 
 ### 4. Validate
 
@@ -50,19 +47,27 @@ Create `~/.pstack/` if needed and overwrite `~/.pstack/t3-models.md` whole, so r
 
 ```
 # pstack model configuration for T3 Code. One line per role. Delete a line to fall back to the skill default.
-# Value: <providerInstanceId>/<model> <effort>, from orchestrator_capabilities. `inherit-parent` or `auto`: run on the parent thread's model.
+# Value: <claude family> <effort> (opus high), or <providerInstanceId>/<model> <effort> from orchestrator_capabilities. `inherit-parent` or `auto`: run on the parent thread's model.
 # Panel lists run one child per entry, alias entries included.
 # defaults: t3-1
 # budget: large (xhigh)
-feature, refactoring: claudeAgent/claude-opus-5-5 xhigh
-bug-fix: claudeAgent/claude-opus-5-5 xhigh
-perf-issue: claudeAgent/claude-opus-5-5 xhigh
-hillclimb: claudeAgent/claude-opus-5-5 xhigh
-judgment and prose: claudeAgent/claude-opus-5-5 xhigh
-arena runners: claudeAgent/claude-fable-5-2 high, claudeAgent/claude-opus-5-5 high, codex/gpt-6.1-sol high
-arena cross-judge pool: codex/gpt-6.1-sol high, claudeAgent/claude-opus-5-5 high
-swarm workers: claudeAgent/claude-opus-5-5 high
-interrogate reviewers: claudeAgent/claude-fable-5-2 high, claudeAgent/claude-opus-5-5 high, codex/gpt-6.1-sol high
+feature, refactoring: opus high
+bug-fix: opus high
+perf-issue: opus high
+hillclimb: opus high
+judgment and prose: opus xhigh
+hardest tasks: opus xhigh
+how explorer: haiku high
+how explainer: opus high
+why investigators: opus high
+why synthesizer: opus xhigh
+reflect tooling: opus medium
+reflect judgment, divergent, synthesizer: opus xhigh
+arena runners: opus high, fable medium
+arena cross-judge pool: opus xhigh, fable medium
+swarm workers: opus high
+architect runners: opus xhigh, fable medium
+interrogate reviewers: opus xhigh, fable medium
 ```
 
 Never put these lines in `AGENTS.md` or `CLAUDE.md`.

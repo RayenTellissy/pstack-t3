@@ -11,7 +11,7 @@ The skills stay word-for-word upstream. A T3 Code adapter, [`t3/adapter.md`](t3/
 | pstack needs | T3 Code gives it |
 | --- | --- |
 | Subagents on a chosen model | `delegate_task` to any provider instance and model, after one `orchestrator_capabilities` call |
-| Multi-vendor review panels | Panel seats on different providers: Fable and Opus through Claude, GPT through Codex, Gemini through Antigravity |
+| Review panels | One child per panel seat, on any provider. The defaults are Opus and Fable; add a Codex or Antigravity seat for cross-vendor review |
 | Cloud agents | `isolation: "worktree"`, or a linked environment on another machine |
 | Transcript mining (`recall`, `correct`, `automate-me`) | `t3_thread_search`, `t3_thread_list`, `t3_thread_read` across all providers |
 | Cursor Automations, `/loop` | `schedule_task` (interval, cron time, or webhook) |
@@ -20,7 +20,33 @@ The skills stay word-for-word upstream. A T3 Code adapter, [`t3/adapter.md`](t3/
 | Visuals | `html_preview` and `html_render` in the thread |
 | Model config rule | `~/.pstack/t3-models.md`, written by a T3 Code version of `setup-pstack` |
 
-`setup-pstack` is the one rewritten skill ([`t3/overrides/skills/setup-pstack`](t3/overrides/skills/setup-pstack/SKILL.md)). It detects models with `orchestrator_capabilities` and writes values such as `claudeAgent/claude-opus-5-5 xhigh` or `codex/gpt-6.1-sol high`.
+`setup-pstack` is the one rewritten skill ([`t3/overrides/skills/setup-pstack`](t3/overrides/skills/setup-pstack/SKILL.md)). It detects models with `orchestrator_capabilities` and writes values such as `opus high`, or `codex/gpt-6.1-sol high` for another provider.
+
+## Default models
+
+With no config file, every role runs on these, in place of the slugs written in the upstream skills:
+
+```
+feature, refactoring: opus high
+bug-fix: opus high
+perf-issue: opus high
+hillclimb: opus high
+judgment and prose: opus xhigh
+hardest tasks: opus xhigh
+how explorer: haiku high
+how explainer: opus high
+why investigators: opus high
+why synthesizer: opus xhigh
+reflect tooling: opus medium
+reflect judgment, divergent, synthesizer: opus xhigh
+arena runners: opus high, fable medium
+arena cross-judge pool: opus xhigh, fable medium
+swarm workers: opus high
+architect runners: opus xhigh, fable medium
+interrogate reviewers: opus xhigh, fable medium
+```
+
+Upstream retired the `hardest tasks`, `how`, `why`, `reflect`, and `architect` roles, and those skills now run inline or as one subagent. The adapter brings them back as T3 Code delegations: `how` explores on Haiku and explains on Opus, `why` fans out investigators and synthesizes, `reflect` splits mining from judgment, and `architect` sketches its two shapes on two runners. See "Where each role applies" in [`t3/adapter.md`](t3/adapter.md).
 
 Not ported: the benny automation pack (it is built on Cursor Automations and Slack; `schedule_task` webhooks could host it later) and Bugbot-specific steps, which the adapter skips with a one-line note.
 
