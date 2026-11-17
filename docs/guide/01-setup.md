@@ -26,7 +26,7 @@ Run:
 
 [`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes `~/.pstack/t3-models.md`, a small file every pstack skill reads.
 
-The defaults are the same as the `large` budget. Prose and judgment run on Opus at `xhigh` reasoning. Code delegates and swarm workers run on Opus at `high`. Each review panel pairs an Opus seat with a Fable seat at `medium`. No role runs above `xhigh`. Outside a review panel, Fable runs only when you name it for a task or after two Opus runs of the same brief fail their check. `medium` lowers each role one level and `small` lowers it two, and both spend fewer tokens.
+The defaults are the same as the `large` budget. Prose and judgment run on Opus at `xhigh` reasoning. Code delegates and swarm workers run on Opus at `high`. Each review panel pairs an Opus seat with a Fable seat at `medium`. No role runs above `xhigh`. Outside a review panel, Fable runs only when you name it for a task or after two `opus xhigh` runs of the same brief fail their check. `medium` lowers each role one level and `small` lowers it two, and both spend fewer tokens.
 
 A role's value is a model family and an effort, such as `opus high`, or a provider instance, model, and effort for any provider T3 Code runs, such as `codex/<model> high`. Add `fast` after the effort to turn on fast mode.
 
