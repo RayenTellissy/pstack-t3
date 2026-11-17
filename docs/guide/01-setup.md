@@ -30,7 +30,7 @@ The defaults are the same as the `large` budget. Prose and judgment run on Opus 
 
 A role's value is a model family and an effort, such as `opus high`, or a provider instance, model, and effort for any provider T3 Code runs, such as `codex/<model> high`. Add `fast` after the effort to turn on fast mode.
 
-You only override what you care about. A role with no line in the file keeps the skill's default. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose model differs from the default. When a default changes, a file written before the change still pins the old default until you run `/setup-pstack` again. That run replaces the old defaults it recognizes, tells you which, and keeps your other choices. To drop a pin it does not recognize, delete that role's line or the file first.
+You only override what you care about. A role with no line in the file keeps the skill's default. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose model differs from the default. When a default changes, a file written before the change still pins the old default. To drop a pin, delete that role's line or the file.
 
 You might be wondering how to keep a role on whatever model your thread runs. Set a role to `inherit-parent` or `auto` and pstack runs that subagent on your parent thread's model. Both values mean the same thing, and neither is a model name. For a panel role the value is a list, and one subagent runs per entry, so the list length sets the panel size. Setup also configures `swarm workers`, the default model for every `/swarm` worker unless a race names a model for each arm.
 
@@ -44,7 +44,7 @@ If you're new to pstack, say yes. An agent that can check its own work keeps goi
 
 Then setup offers once to generate a formal verification skill with [`/create-formal-verification-skill`](../../skills/create-formal-verification-skill/SKILL.md), unless the project already has one. Tests check the cases someone thought to write. A formal verification skill checks one key property of your code, such as "a job never runs twice at once", in every case within a stated scope. Say yes when your code has concurrency, retries, a state machine, or a parser, where a bug is costly and tests rarely reach the case that breaks. Otherwise say no, and run it later if that changes. [Verify and ship](./06-verify-and-ship.md#prove-a-property-with-a-formal-verification-skill) covers it.
 
-After setup, start a new thread. The model file applies to new sessions.
+The model file applies the next time a skill runs, with no restart.
 
 ## Keep the cost in check
 

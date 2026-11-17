@@ -99,7 +99,7 @@ A few habits help:
 
 - Give each body of work its own coordinator thread, such as a feature, a migration, a perf push, or a tech-debt cleanup. Several can run side by side.
 - Name related threads in the coordinator's first message, finished ones included. It reads them with `t3_thread_read`, so they become context for the work.
-- Give each PR a verification swarm before it merges, and let Autopilot-stack or Autopilot-full carry the queue. Their owners wait on each PR with `watch_pull_request`, not a polling loop.
+- Give each PR a verification swarm before it merges, and let Autopilot-stack or Autopilot-full carry the queue.
 - Ask the coordinator for a plan backed by data, and have it answer open questions with prototypes before it asks you.
 
 One prompt can carry a whole coordinator thread, from research through execution:

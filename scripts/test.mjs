@@ -31,7 +31,7 @@ const CURSOR_ONLY = [
   /environment: "(cloud|local)"/, /cloud_base_branch/, /run_in_background/, /file_attachments/, /agent-transcripts/,
   /cursor-team-kit/, /\bdeslop\b/, /control-ui/, /control-cli/, /is_background/, /SendToUser/, /\bclaude-[a-z]+-\d/,
   /\bgemini-\d/, /(?<!codex\/)\bgpt-\d/, /-fast\b/, /`Task`/, /\bTask (tool|subagent|call)\b/, /\.cursor-plugin/, /docs\/harness/,
-  /api2\.cursor\.sh/, /cursor\.com\/docs/, /custom mode/i, /Cursor Automations?/, /cloud agents?/i,
+  /api2\.cursor\.sh/, /`\/visualize`/, /cursor\.com\/docs/, /custom mode/i, /Cursor Automations?/, /cloud agents?/i,
 ];
 
 test("no Cursor-only names remain in the docs or skills", () => {
@@ -87,7 +87,8 @@ test("the default roles agree everywhere they are written", () => {
   assert.match(read("arena"), /opus high.*fable medium/s);
   assert.match(read("arena"), /opus xhigh.*fable medium/s);
   assert.match(read("swarm"), /opus high/);
-  assert.match(read("interrogate") + read("poteto-mode"), /Interrogate reviewers: `opus xhigh`, `fable medium`/);
+  assert.match(read("interrogate"), /`interrogate reviewers`[^.]*by default `opus xhigh` and `fable medium`/);
+  assert.match(read("poteto-mode"), /Interrogate reviewers: `opus xhigh`, `fable medium`/);
 });
 
 const run = (args, env = {}) =>

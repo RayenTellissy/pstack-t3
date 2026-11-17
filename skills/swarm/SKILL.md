@@ -26,7 +26,7 @@ Open a todo list with one entry per phase before launching anything. Use your to
 
 Start all N workers with `delegate_task` in one message, with `isolation: "worktree"` and the step 3 `target`, left unset for `auto` or `inherit-parent`. A worktree is a separate checkout from the parent's commit, and uncommitted edits stay behind. If `isolation: "worktree"` is rejected, for example because the thread's folder is not a git repo, use `isolation: "shared"`, give each worker its own output folder under `/tmp`, run workers that would edit the same files one at a time, and say so. Never create a worker's checkout in the shell. Leave `isolation` at its default only when the worker needs access to something in the parent's checkout. Each worker wakes your thread when it finishes. Do not poll.
 
-When a worker must start from a non-default pushed branch, its brief names that branch, and the worker rebases its work onto `origin/<branch>` in its own worktree before it starts.
+When a worker must start from a non-default pushed branch, its brief names that branch, and the worker's first step in its own worktree is `git fetch origin <branch>` and `git switch -c <worker-branch> origin/<branch>`, so it starts from that branch and nothing else.
 
 Every brief stands alone. Include the goal, scope, exact slice or race arm, how to verify, and what to report. Reports use `PASS`, `ISSUES`, or `BLOCKED` with evidence. A worker that can prove a defect reports `ISSUES` and lists every issue it can prove, not only the first.
 

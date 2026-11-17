@@ -29,11 +29,11 @@ The default panels (`arena runners`, `arena cross-judge pool`, `interrogate revi
 
 **(a) Ask for a budget** with your question tool, else in plain text. Offer these labels, and name the current budget when the file records one. With no file, say that `large` matches the skill defaults.
 
-- `large — xhigh reasoning`
-- `medium — high reasoning`
-- `small — medium reasoning`
+- `large — default reasoning`
+- `medium — one step lower`
+- `small — two steps lower`
 
-**(b) Apply it.** Each role's target effort is its default effort moved down by the budget: `large` keeps it, `medium` lowers it one step, and `small` lowers it two, on the ladder `xhigh` > `high` > `medium` > `low`. No role runs above `xhigh`, and a target at the bottom stays at `low`. Set every real entry's effort to its role's target, panel entries included. If the model does not list that effort, use its highest listed effort at or below the target. `inherit-parent`, `auto`, and `default` efforts do not change. Keep any role the user changed on an earlier run.
+**(b) Apply it.** Build the working table from the defaults, and keep any role the user changed on an earlier run. Move the effort of each default entry by the budget, one entry at a time, so a panel keeps its mix: `large` keeps it, `medium` lowers it one step, and `small` lowers it two, on the ladder `xhigh` > `high` > `medium` > `low`. No entry runs above `xhigh`, and an entry at the bottom stays at `low`. So `medium` turns `arena runners: opus high, fable medium` into `opus medium, fable low`, and `judgment and prose: opus xhigh` into `opus high`. If the model does not list that effort, use its highest listed effort at or below it. `inherit-parent`, `auto`, and `default` efforts do not change.
 
 **(c) Show the roles and confirm.** Show every role and its value, mark each one needing a choice, and list the lines step 2 dropped. Ask whether to accept or change specific roles, offering the detected models at `xhigh` or below plus `inherit-parent` and `auto`. Panel roles (`arena runners`, `interrogate reviewers`) are lists, and one child runs per entry, so the length sets the count. `arena cross-judge pool` is a list in preference order. Arena runs one judge from a vendor other than the parent's, and when the parent runs on Opus it runs the pool's first two Claude entries as two judges. An `inherit-parent` or `auto` entry never judges. Fable, Opus, Sonnet, and Haiku are one vendor. `swarm workers` is the default model for every swarm worker.
 
@@ -50,7 +50,7 @@ Create `~/.pstack/` if needed and overwrite `~/.pstack/t3-models.md` whole, so r
 # Value: <claude family> <effort> (opus high), or <providerInstanceId>/<model> <effort> from orchestrator_capabilities. `inherit-parent` or `auto`: run on the parent thread's model.
 # Panel lists run one child per entry, alias entries included.
 # defaults: 3
-# budget: large (xhigh)
+# budget: large
 feature, refactoring: opus high
 bug-fix: opus high
 perf-issue: opus high
