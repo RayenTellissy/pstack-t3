@@ -23,7 +23,7 @@ The default mapping is the file shape in step 5, the same as the adapter's Defau
 
 A family value such as `opus high` is detected when a `claudeAgent` instance that can run a child task lists a `claude-<family>-*` model with that effort. Mark any value that is not detected as needing a choice. With no Claude instance able to run child tasks, every default needs a choice: offer the detected models.
 
-The default panels (`arena runners`, `arena cross-judge pool`, `architect runners`, `interrogate reviewers`) are Claude-only. When another vendor can run child tasks, mention once that adding it as a panel entry gives cross-vendor review, and leave the panels as they are unless the user asks.
+The default panels (`arena runners`, `arena cross-judge pool`, `interrogate reviewers`) are Claude-only. When another vendor can run child tasks, mention once that adding it as a panel entry gives cross-vendor review, and leave the panels as they are unless the user asks.
 
 ### 3. Budget, map, and confirm
 
@@ -35,7 +35,7 @@ The default panels (`arena runners`, `arena cross-judge pool`, `architect runner
 
 **(b) Apply it.** Each role's target effort is its default effort moved down by the budget: `large` keeps it, `medium` lowers one step, `small` lowers two, on the ladder `xhigh` > `high` > `medium` > `low`. No role runs above `xhigh`, and the bottom stays at `low`. Set every real entry's effort to its role's target, panel entries included. If the model does not list that effort, use its highest listed effort at or below the target. `inherit-parent`, `auto`, and `default` efforts do not change. Keep any role the user changed on a previous run.
 
-**(c) Show the roles and confirm.** Show every role and its value, mark each one needing a choice, and list dropped lines. Ask whether to accept or change specific roles, offering detected models at `xhigh` or below plus `inherit-parent` and `auto` (both mean the role runs on the parent thread's model). Panel roles (`arena runners`, `architect runners`, `interrogate reviewers`) are lists, and one child runs per entry, so the length sets the count. `arena cross-judge pool` is a list in preference order; Arena runs one judge from a vendor other than the parent's, and an `inherit-parent` or `auto` entry never judges. Fable, Opus, Sonnet, and Haiku are one vendor, so with a Claude parent the default pool has no cross-vendor judge and Arena says so. `swarm workers` is the default model for every swarm worker. The `hardest tasks`, `how`, `why`, `reflect`, and `architect` roles are retired upstream: no skill reads them, so say they have no effect when you show them.
+**(c) Show the roles and confirm.** Show every role and its value, mark each one needing a choice, and list dropped lines. Ask whether to accept or change specific roles, offering detected models at `xhigh` or below plus `inherit-parent` and `auto` (both mean the role runs on the parent thread's model). Panel roles (`arena runners`, `interrogate reviewers`) are lists, and one child runs per entry, so the length sets the count. `arena cross-judge pool` is a list in preference order; Arena runs one judge from a vendor other than the parent's, and an `inherit-parent` or `auto` entry never judges. Fable, Opus, Sonnet, and Haiku are one vendor. When the parent runs on Opus, Arena instead runs the pool's first two Claude entries as two judges (see the adapter). `swarm workers` is the default model for every swarm worker.
 
 ### 4. Validate
 
@@ -56,17 +56,9 @@ bug-fix: opus high
 perf-issue: opus high
 hillclimb: opus high
 judgment and prose: opus xhigh
-hardest tasks: opus xhigh
-how explorer: haiku high
-how explainer: opus high
-why investigators: opus high
-why synthesizer: opus xhigh
-reflect tooling: opus medium
-reflect judgment, divergent, synthesizer: opus xhigh
 arena runners: opus high, fable medium
 arena cross-judge pool: opus xhigh, fable medium
 swarm workers: opus high
-architect runners: opus xhigh, fable medium
 interrogate reviewers: opus xhigh, fable medium
 ```
 

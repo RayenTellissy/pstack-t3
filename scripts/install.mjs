@@ -5,8 +5,8 @@
 //
 //   default      user scope: ~/.agents/skills, ~/.claude/skills, and ~/.gemini/config/skills when ~/.gemini exists
 //   --project    project scope: <dir>/.agents/skills and <dir>/.claude/skills
-//   --force      move a conflicting skill that is not ours aside to <name>.pre-pstack-t3 instead of skipping it
-//   --uninstall  remove only the links that point into this checkout
+//   --force      move a conflicting skill that is not ours aside to <name>.pre-pstack-t3 (or -2, -3, ... when taken) instead of skipping it
+//   --uninstall  remove only the links that point into this checkout, and move <name>.pre-pstack-t3 back when the name is free
 
 import { existsSync, lstatSync, mkdirSync, readdirSync, readlinkSync, renameSync, rmSync, symlinkSync } from "node:fs";
 import { homedir } from "node:os";
@@ -48,6 +48,22 @@ const linkTarget = (path) => {
   }
 };
 const ours = (path) => linkTarget(path)?.startsWith(SKILLS + "/") ?? false;
+const present = (path) => {
+  try {
+    lstatSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+};
+const BACKUP = ".pre-pstack-t3";
+// rename() silently replaces a file or symlink at the destination, so never reuse a backup name.
+const freeBackup = (path) => {
+  for (let n = 1; ; n++) {
+    const candidate = `${path}${BACKUP}${n === 1 ? "" : `-${n}`}`;
+    if (!present(candidate)) return candidate;
+  }
+};
 
 if (!existsSync(SKILLS)) throw new Error("dist/pstack/skills is missing. Run `node scripts/build.mjs` first.");
 const skills = readdirSync(SKILLS).filter((name) => existsSync(join(SKILLS, name, "SKILL.md")));
@@ -59,7 +75,9 @@ for (const target of targets) {
     if (!existsSync(dir)) continue;
     for (const name of readdirSync(dir)) {
       const path = join(dir, name);
-      if (ours(path)) act(`remove ${path}`, () => rmSync(path));
+      if (!ours(path)) continue;
+      act(`remove ${path}`, () => rmSync(path));
+      if (present(`${path}${BACKUP}`)) act(`restore ${path}${BACKUP} to ${path}`, () => renameSync(`${path}${BACKUP}`, path));
     }
     continue;
   }
@@ -68,17 +86,14 @@ for (const target of targets) {
     const path = join(dir, name);
     const source = join(SKILLS, name);
     if (linkTarget(path) === source) continue;
-    let exists = false;
-    try {
-      lstatSync(path);
-      exists = true;
-    } catch {}
+    const exists = present(path);
     if (exists && !ours(path)) {
       if (!flag("--force")) {
         skipped.push(path);
         continue;
       }
-      act(`move ${path} aside to ${path}.pre-pstack-t3`, () => renameSync(path, `${path}.pre-pstack-t3`));
+      const backup = freeBackup(path);
+      act(`move ${path} aside to ${backup}`, () => renameSync(path, backup));
     } else if (exists) {
       act(`replace stale link ${path}`, () => rmSync(path));
     }

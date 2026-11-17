@@ -117,7 +117,7 @@ if (problems.length > 0) process.exit(1);
 const ADAPTER_LINE =
   `In T3 Code, read [the T3 Code adapter](../../${ADAPTER}) once per session before you follow this skill. ` +
   "It maps the Cursor names in pstack skills to T3 Code's tools and your provider. " +
-  "This skill folder may be a symlink: resolve this file's real path first, and the adapter is two folders up from its folder.";
+  "This skill folder may be a symlink: resolve this file's real path first, then read `../../docs/harness/t3-code.md` relative to the folder that holds it.";
 for (const skill of wraps) {
   const path = `skills/${skill}/SKILL.md`;
   sources.get(path).bytes = Buffer.from(text(path).replace(/^(# .*)\n+/m, `$1\n\n${ADAPTER_LINE}\n\n`));

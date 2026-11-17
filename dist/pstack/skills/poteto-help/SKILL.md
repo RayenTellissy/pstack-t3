@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Poteto help
 
-In T3 Code, read [the T3 Code adapter](../../docs/harness/t3-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to T3 Code's tools and your provider. This skill folder may be a symlink: resolve this file's real path first, and the adapter is two folders up from its folder.
+In T3 Code, read [the T3 Code adapter](../../docs/harness/t3-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to T3 Code's tools and your provider. This skill folder may be a symlink: resolve this file's real path first, then read `../../docs/harness/t3-code.md` relative to the folder that holds it.
 
 Answer the user's question about pstack, hand them a prompt they can send, and link the file the answer came from. For a help question, don't start the work. The user asked how, and a pstack run spends real tokens, so let them send the prompt.
 

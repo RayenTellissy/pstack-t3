@@ -32,21 +32,13 @@ bug-fix: opus high
 perf-issue: opus high
 hillclimb: opus high
 judgment and prose: opus xhigh
-hardest tasks: opus xhigh
-how explorer: haiku high
-how explainer: opus high
-why investigators: opus high
-why synthesizer: opus xhigh
-reflect tooling: opus medium
-reflect judgment, divergent, synthesizer: opus xhigh
 arena runners: opus high, fable medium
 arena cross-judge pool: opus xhigh, fable medium
 swarm workers: opus high
-architect runners: opus xhigh, fable medium
 interrogate reviewers: opus xhigh, fable medium
 ```
 
-These change only which model a step runs on; every skill runs exactly as upstream wrote it. The `hardest tasks`, `how`, `why`, `reflect`, and `architect` lines are roles upstream pstack retired, so no skill reads them and they have no effect today.
+These change only which model a step runs on; every skill runs as upstream wrote it, with one exception: when your thread runs on Opus, `arena` runs two Claude judges (`opus xhigh` and `fable medium`) instead of skipping its cross-vendor judge.
 
 Not ported: the benny automation pack (it is built on Cursor Automations and Slack; `schedule_task` webhooks could host it later) and Bugbot-specific steps, which the adapter skips with a one-line note.
 
@@ -67,8 +59,8 @@ Options:
 - `--project <dir>` installs into `<dir>/.agents/skills` and `<dir>/.claude/skills` instead.
 - `--targets agents,claude` limits the folders.
 - `--dry-run` prints what it would do.
-- `--force` moves an existing skill with the same name, such as one from an earlier pstack install, to `<name>.pre-pstack-t3`. Without it, those skills are skipped and listed.
-- `--uninstall` removes only links that point into this checkout.
+- `--force` moves an existing skill with the same name, such as one from an earlier pstack install, to `<name>.pre-pstack-t3` (`-2`, `-3`, and so on if that name is taken). Without it, those skills are skipped and listed.
+- `--uninstall` removes only links that point into this checkout, and moves `<name>.pre-pstack-t3` back into place.
 
 Then in T3 Code:
 

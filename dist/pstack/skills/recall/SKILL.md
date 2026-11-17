@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Recall
 
-In T3 Code, read [the T3 Code adapter](../../docs/harness/t3-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to T3 Code's tools and your provider. This skill folder may be a symlink: resolve this file's real path first, and the adapter is two folders up from its folder.
+In T3 Code, read [the T3 Code adapter](../../docs/harness/t3-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to T3 Code's tools and your provider. This skill folder may be a symlink: resolve this file's real path first, then read `../../docs/harness/t3-code.md` relative to the folder that holds it.
 
 **Before you start or resume work, you rebuild the user's recent working context and hand back a tight capsule of where things stand now and what to do next.**
 

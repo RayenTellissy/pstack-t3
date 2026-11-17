@@ -2,7 +2,7 @@
 
 pstack skills use Cursor names. In T3 Code, read this file once per session, then map each Cursor name in a skill with the tables below. T3 Code runs many providers (Claude, Codex, Cursor, Grok, OpenCode, Antigravity, Pi, and others), so the agent reading this may be any of them. The `t3-code` MCP server is the common layer: use its tools wherever a row names one, and use your own provider's native tool only where a row says so.
 
-`<pstack>` means the folder that holds `skills/` and `docs/`. Skills are often installed as symlinks, so resolve the real path of the `SKILL.md` you were given (`realpath`), then go up two folders. If a Cursor field has no row, drop it and say so. Never pass a field or value a tool schema rejects. T3 Code's MCP tools can load late: if one is deferred, load it with your tool-search tool and try it once before you call it absent.
+`<pstack>` means the folder that holds `skills/` and `docs/`. Skills are often installed as symlinks, so resolve the real path of the `SKILL.md` you were given (`realpath`); `<pstack>` is `../..` from the folder that holds it. If a Cursor field has no row, drop it and say so. Never pass a field or value a tool schema rejects. T3 Code's MCP tools can load late: if one is deferred, load it with your tool-search tool and try it once before you call it absent.
 
 ## Tools
 
@@ -29,11 +29,11 @@ Call `orchestrator_capabilities` once per thread before the first `delegate_task
 | Cursor | T3 Code |
 | --- | --- |
 | `Task` with a `model` (any pstack role with a real model) | `delegate_task` with `target: { providerInstanceId, model, options }` mapped with the Models table. One call per panel seat. |
-| `Task` with no `model`, or a role set to `inherit-parent` or `auto` | Your provider's native subagent tool (`Agent` in Claude with `run_in_background: false`, `spawn_agent` then wait in Codex). Without one, `delegate_task` with no `target`. |
+| `Task` with no `model`, or a role set to `inherit-parent` or `auto` | Your provider's native subagent tool (`Agent` in Claude with `run_in_background: false`, `spawn_agent` then wait in Codex). Without one, `delegate_task` with no `target`. Native subagents run in the foreground even when the skill says `run_in_background: true`; when the step needs the work to run in the background, use `delegate_task` with no `target`. |
 | `subagent_type: generalPurpose` | Drop it. `delegate_task` children are general-purpose. With a native tool, use its general type (`general-purpose` in Claude). |
 | `poteto-agent` | `delegate_task` whose `task` starts with the body of `<pstack>/agents/poteto-agent.md` (below its frontmatter), then the absolute path of `<pstack>/skills/poteto-mode/SKILL.md`, then the brief. The child reads that path; it does not search `~/.cursor/plugins/`. Ignore the file's `model:` line: the target comes from the delegate's role in Default roles. |
 | `comment-sicko` | `delegate_task` with `role: "review"` whose `task` is the body of `<pstack>/agents/comment-sicko.md`, then the scope. Its first output line is part of the persona, not an error. |
-| `readonly: true` | `role: "research"` or `"review"`, and the brief says "do not edit files". Do not narrow `runtimeMode` for this: a narrow mode pauses for human approval, it is not read-only. Run `git status` afterward. |
+| `readonly: true` | With `delegate_task`: `role: "research"` or `"review"`. With Claude's native `Agent`: `subagent_type: "Explore"`. Other native tools, such as Codex's `spawn_agent`, have no read-only field. In every case the brief says "do not edit files", and you run `git status` afterward. Do not narrow `runtimeMode` for this: a narrow mode pauses for human approval, it is not read-only. |
 | `readonly: false` | Default. |
 | `environment: "cloud"` | `isolation: "worktree"`, which gives the child its own prepared checkout from your commit. Uncommitted edits do not carry over, so commit first or say so. To run on another machine, `t3_environment_links` lists linked environments; pass one's `environmentId` in `target`. |
 | `environment: "local"` | Omit (`isolation: "shared"` is the default). |
@@ -46,6 +46,8 @@ Call `orchestrator_capabilities` once per thread before the first `delegate_task
 
 Link a child thread in your reply by the `link` its result carries, verbatim.
 
+T3 Code tells child threads to do their work themselves and start no subagents unless their task says to. When a brief asks a child to run a pstack skill or step that spawns subagents, say in the brief that it may spawn them.
+
 ## Models
 
 A pstack role value in T3 Code is one of:
@@ -54,7 +56,7 @@ A pstack role value in T3 Code is one of:
 - `<providerInstanceId>/<model> <effort>`, such as `codex/gpt-6.1-sol high`, for any provider.
 - `inherit-parent` or `auto`: run on the parent thread's model.
 
-The effort is the last token. Add `fast` after it to set `fastMode: true` where the model offers it.
+The effort is the last token. Add `fast` after it to set `fastMode: true` where the model offers it. Without `fast`, leave `fastMode` off, even where a skill says Opus always runs its `-fast` slug.
 
 ### Default roles
 
@@ -66,25 +68,19 @@ bug-fix: opus high
 perf-issue: opus high
 hillclimb: opus high
 judgment and prose: opus xhigh
-hardest tasks: opus xhigh
-how explorer: haiku high
-how explainer: opus high
-why investigators: opus high
-why synthesizer: opus xhigh
-reflect tooling: opus medium
-reflect judgment, divergent, synthesizer: opus xhigh
 arena runners: opus high, fable medium
 arena cross-judge pool: opus xhigh, fable medium
 swarm workers: opus high
-architect runners: opus xhigh, fable medium
 interrogate reviewers: opus xhigh, fable medium
 ```
 
 ### Which roles the skills read
 
-The skills read `feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb`, `judgment and prose`, `swarm workers`, `arena runners`, `arena cross-judge pool`, and `interrogate reviewers`, and use each exactly as they say. These values only change which model runs.
+The skills read every role above and use each exactly as they say. These values only change which model runs, with one exception for the arena judge below. Ignore any other role line in `~/.pstack/t3-models.md`.
 
-`hardest tasks`, `how explorer`, `how explainer`, `why investigators`, `why synthesizer`, `reflect tooling`, `reflect judgment, divergent, synthesizer`, and `architect runners` are roles upstream pstack retired. No skill reads them, so they have no effect. Do not change how a skill runs to use them.
+### Arena judges on an Opus parent
+
+`arena` picks one judge from the `arena cross-judge pool` and never from the parent's vendor. When your own model is a Claude Opus model, waive that vendor rule for the Claude entries: spawn one judge for each of the first two Claude entries in the pool (by default `opus xhigh` and `fable medium`), in parallel, with the same brief. Each scores every candidate on every rubric criterion and recommends a base, as the skill says. Read both. Where they disagree on the base or on a criterion, say so and decide yourself. On any other parent model, follow the skill's one-judge rule unchanged.
 
 ### Mapping Cursor slugs
 
@@ -96,7 +92,7 @@ The skills read `feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb`, `j
 | `gemini-*` | An `antigravity` instance with the closest Gemini model. When none can run a child task, give the seat to a model from a vendor the panel does not already have (usually Codex), because the seat exists for vendor diversity. Say which model took it. |
 | `auto` or `inherit-parent` | Omit `target`, or use your native subagent tool. |
 | Any option name | Use the effort-like option id the model lists in `orchestrator_capabilities` (`effort`, `reasoningEffort`). Never send an option the model does not list. |
-| `pstack-models.mdc`, `~/.cursor/rules/pstack-models.mdc` | `~/.pstack/t3-models.md`. No provider loads it on its own: read it at the start of any skill that picks a model. If the file or the role's line is missing, use the role's value from Default roles. |
+| `pstack-models.mdc`, `~/.cursor/rules/pstack-models.mdc` | `~/.pstack/t3-models.md`. No provider loads it on its own: read it at the start of any skill that picks a model. If the file or the role's line is missing, use the role's value from Default roles. Never read `~/.cursor/rules/pstack-models.mdc` in T3 Code; if it exists and the T3 Code file does not, tell the user once that `$setup-pstack` writes the T3 Code file. The `# defaults: 3` check in `poteto-mode` is about the Cursor file; skip it. |
 
 If `delegate_task` rejects a target, never pass it again. Fall back as the skill says, then to the closest model of the same family that `orchestrator_capabilities` lists, then omit `target`. Say so.
 

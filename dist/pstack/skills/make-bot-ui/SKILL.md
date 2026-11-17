@@ -8,7 +8,7 @@ disable-model-invocation: true
 ---
 # How to make a bot UI
 
-In T3 Code, read [the T3 Code adapter](../../docs/harness/t3-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to T3 Code's tools and your provider. This skill folder may be a symlink: resolve this file's real path first, and the adapter is two folders up from its folder.
+In T3 Code, read [the T3 Code adapter](../../docs/harness/t3-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to T3 Code's tools and your provider. This skill folder may be a symlink: resolve this file's real path first, then read `../../docs/harness/t3-code.md` relative to the folder that holds it.
 
 Build a page the user clicks. A server on this computer POSTs JSON to a webhook routine. The bot wakes with that JSON. Keep the sender key on the server. Do not put the sender key in the browser, in chat, or in this skill.
 
