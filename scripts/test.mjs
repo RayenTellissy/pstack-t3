@@ -87,6 +87,7 @@ test("the default roles agree everywhere they are written", () => {
   assert.match(read("arena"), /opus high.*fable medium/s);
   assert.match(read("arena"), /opus xhigh.*fable medium/s);
   assert.match(read("swarm"), /opus high/);
+  assert.match(read("arena"), /parent runs on a Claude model \(Opus, Sonnet, Haiku, or Fable\), run one judge for each of the first two Claude entries/);
   assert.match(read("interrogate"), /`interrogate reviewers`[^.]*by default `opus xhigh` and `fable medium`/);
   assert.match(read("poteto-mode"), /Interrogate reviewers: `opus xhigh`, `fable medium`/);
 });
