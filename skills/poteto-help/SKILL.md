@@ -36,7 +36,7 @@ When the model file is missing and it matters, ask whether the user wants to pic
 ## Get set up
 
 1. Install: `git clone https://github.com/RayenTellissy/pstack-t3.git`, then `node scripts/install.mjs` in the checkout. Then run **Restart agent session** from T3 Code's command palette.
-2. Run [`/setup-pstack`](../setup-pstack/SKILL.md). It asks for a reasoning budget, maps a model to each role, and writes `~/.pstack/t3-models.md`. The file applies to new chats. Then it offers once each to generate a verification skill and a formal verification skill for the project, unless the project already has one.
+2. Run [`/setup-pstack`](../setup-pstack/SKILL.md). It asks for a reasoning budget, maps a model to each role, and writes `~/.pstack/t3-models.md`. The file applies the next time a skill runs. Then it offers once each to generate a verification skill and a formal verification skill for the project, unless the project already has one.
 3. Start a real task with `/poteto-mode`, a goal, and a check that can pass or fail.
 
 Installing changes nothing until the user invokes a skill. Only `/setup-pstack` loads from the user's words. The [README](../../README.md) and [guide page 1](../../docs/guide/01-setup.md) have the details. Offer to word their first prompt with them, per [`references/prompting.md`](references/prompting.md).
@@ -56,7 +56,7 @@ Whether `/poteto-mode` stays on depends on how the user starts it:
 - `/poteto-mode` in a message attaches the skill to that message. It fades as the chat moves on.
 - To keep it on, add `/poteto-mode` to each message, or say in the first message to use it for every task in the thread.
 
-Mid-chat, "new task" makes the mode match a fresh playbook. `/poteto-mode` already uses `poteto-agent` for the subagents its playbook steps spawn. To get the same style from a subagent of your own, spawn a `poteto-agent` delegate: a `delegate_task` whose `task` begins with the body of [`agents/poteto-agent.md`](../../agents/poteto-agent.md) and the absolute path of `skills/poteto-mode/SKILL.md`, then the brief.
+Mid-chat, "new task" makes the mode match a fresh playbook. `/poteto-mode` already uses `poteto-agent` for the subagents its playbook steps spawn. To get the same style from a subagent of your own, spawn a `poteto-agent` delegate: a `delegate_task` whose `task` begins with the body of [`agents/poteto-agent.md`](../../agents/poteto-agent.md) (installed skills are symlinks, so resolve this file's real path with `realpath` first) and the absolute path of `skills/poteto-mode/SKILL.md`, then the brief.
 
 ## Pick a skill
 
@@ -137,7 +137,7 @@ Principles are one-rule skills that `/poteto-mode` reads and cites in its replie
 |---|---|
 | The mode stopped applying after a few turns | It was attached to one message. Add `/poteto-mode` to each message, or say in the first message to use it for every task in the thread. |
 | A question got treated as the next step of the last task | Say "new task", or say the turn doesn't need the mode. |
-| A new model choice had no effect | The file from `/setup-pstack` applies to new chats. Start one. |
+| A new model choice had no effect | The file from `/setup-pstack` applies the next time a skill runs. Check that `~/.pstack/t3-models.md` has the line, then run the skill again. |
 | Runs cost more than expected | See the cost paragraph under Get set up. |
 | A skill didn't load on its own | Only `/setup-pstack` loads from the user's words. The others load when the user types them or when `/poteto-mode` runs them, and it doesn't run every skill. |
 | Parallel agents overwrote each other | Give each agent its own worktree, or delegate them with `isolation: "worktree"`, which gives each its own checkout. |

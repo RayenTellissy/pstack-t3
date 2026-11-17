@@ -43,7 +43,7 @@ Cross-check across slices before elevating a signal. Patterns seen in 2+ slices 
 
 Mining misses intent that hasn't come up yet. Use your question tool (`AskUserQuestion` in Claude, `request_user_input` in Codex), else plain text with structured multi-choice rather than asking the user to type from scratch.
 
-Shape: one or two questions with 4-6 options each, multiple answers allowed for category questions. Start broad ("Which areas matter most?"), then follow up on selected areas with specific options. After the structured rounds, one free-form chat question catches anything the options missed.
+Shape: one or two questions with 4-6 options each, multiple answers allowed for category questions. If your question tool allows fewer options, split them across more questions. Start broad ("Which areas matter most?"), then follow up on selected areas with specific options. After the structured rounds, one free-form chat question catches anything the options missed.
 
 Don't dump 20 questions.
 

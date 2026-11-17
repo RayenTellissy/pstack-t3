@@ -69,6 +69,8 @@ Then start the node with a short hostname:
 sudo tailscale up --hostname=<short-name> --accept-dns=false --ssh=false
 ```
 
+If `sudo -n true` says a password is required, get it with `request_secret` and `delivery: "file"`, then run each command as `sudo -S -p '' <cmd> < "$file"`. Download the install script to a file first, since stdin carries the password.
+
 The command prints a login URL. Send that URL to the user. The user approves the machine in the browser. Do not ask for Tailscale credentials. Do not type them.
 
 After the node is online, confirm with `tailscale status` and `tailscale ip -4`.

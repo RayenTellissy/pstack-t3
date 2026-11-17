@@ -12,7 +12,7 @@ If the scope is ambiguous, state your interpretation and explore. The user can r
 
 ## 1. Explain
 
-Start one subagent with `delegate_task` and `role: "research"` that explores and explains in one pass. With Claude's native `Agent`, use `subagent_type: "Explore"`. Give it the user's question and this brief:
+Start one subagent with `delegate_task` and `role: "research"` that explores and explains in one pass. A native subagent on your own model (`Agent` in Claude, `spawn_agent` in Codex) works too. It has no read-only role, so the brief's last line keeps it from editing. Give it the user's question and this brief:
 
 > You are writing an architectural explanation for a senior engineer. Explore the codebase and write an explanation that a senior engineer unfamiliar with this area could read and walk away with a solid mental model. They should understand the architecture well enough to start working in it confidently. Do not edit files.
 
