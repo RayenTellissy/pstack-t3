@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Link every dist/pstack skill into the skill folders T3 Code's providers read.
+// Link every pstack skill into the skill folders T3 Code's providers read.
 //
 // Usage: node scripts/install.mjs [--project <dir>] [--targets agents,claude,gemini] [--force] [--uninstall] [--dry-run]
 //
@@ -14,7 +14,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS = join(ROOT, "dist", "pstack", "skills");
+const SKILLS = join(ROOT, "skills");
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
 const option = (name) => {
@@ -65,7 +65,6 @@ const freeBackup = (path) => {
   }
 };
 
-if (!existsSync(SKILLS)) throw new Error("dist/pstack/skills is missing. Run `node scripts/build.mjs` first.");
 const skills = readdirSync(SKILLS).filter((name) => existsSync(join(SKILLS, name, "SKILL.md")));
 const skipped = [];
 

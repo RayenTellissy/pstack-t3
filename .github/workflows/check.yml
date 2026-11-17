@@ -8,5 +8,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node scripts/build.mjs --check
       - run: node --test scripts/test.mjs
