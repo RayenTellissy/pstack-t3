@@ -5,12 +5,15 @@
   "description": "pstack, ported to T3 Code: rigorous agent workflows that run on any provider T3 Code drives.",
   "license": "MIT",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "sync": "node scripts/sync-upstream.mjs",
     "build": "node scripts/build.mjs",
     "check": "node scripts/build.mjs --check",
     "install-skills": "node scripts/install.mjs",
-    "uninstall-skills": "node scripts/install.mjs --uninstall"
+    "uninstall-skills": "node scripts/install.mjs --uninstall",
+    "test": "node --test scripts/test.mjs"
   }
 }
