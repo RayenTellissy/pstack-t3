@@ -64,7 +64,7 @@ The **poteto-mode** skill shows the shape. Read it for granularity. Don't copy i
 
 ### 4. Draft the skill
 
-Use the **authoring a skill** playbook to author the skill. Placement:
+Use steps 1 to 3 of the **authoring a skill** playbook to author the skill. Step 6 below lands it. Placement:
 
 - Path: preserve an existing mode skill's category. For a new mode, use `.agents/skills/<handle>/<handle>-mode/SKILL.md` when the repo has an established personal category for that handle. Otherwise default to `.agents/skills/<handle>-mode/SKILL.md` in the project (or `~/.agents/skills/<handle>-mode/` if the user prefers a personal skill). Symlink the new skill folder into the matching `.claude/skills/` (or `~/.claude/skills/`) path for Claude.
 - Handle: the user's first name or chosen identifier.

@@ -106,5 +106,5 @@ if (skipped.length > 0) {
   console.log("Rerun with --force to move them aside, or remove them yourself.");
 }
 if (!flag("--uninstall")) {
-  console.log(`\nDone. In T3 Code, run "Restart agent session" from the command palette, then $setup-pstack.`);
+  console.log(`\nDone. In T3 Code, run "Restart agent session" from the command palette, then /setup-pstack ($setup-pstack in Codex).`);
 }

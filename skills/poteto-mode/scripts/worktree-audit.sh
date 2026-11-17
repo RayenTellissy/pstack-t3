@@ -98,7 +98,7 @@ git worktree list --porcelain | awk '/^worktree /{print $2}' | while read -r wt;
 	[ -z "$pr" ] && pr="-"
 
 	# An agent working here leaves fresh files. The shell cannot read T3 Code
-	# threads, so the playbook checks those with t3_worktree_list.
+	# threads, so the playbook checks each thread's worktreePath.
 	touched=$(find "$wt" \( -name .git -o -name node_modules \) -prune -o -type f -mtime -4 -print 2>/dev/null | head -1)
 	[ -n "$touched" ] && { recent=yes; last="<4d"; } || { recent=no; last="-"; }
 
