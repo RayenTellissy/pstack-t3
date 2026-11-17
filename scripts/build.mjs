@@ -81,11 +81,6 @@ const skills = [...sources.keys()]
   .map((path) => path.split("/")[1])
   .sort();
 
-// A skill the adapter's role table changes must read the adapter even when it uses no Cursor names.
-const roleSection = text(ADAPTER).match(/^### Where each role applies\n([\s\S]*?)(?=^#)/m)?.[1];
-if (!roleSection) throw new Error("t3/adapter.md has no `### Where each role applies` section");
-const roleSkills = new Set(skills.filter((skill) => roleSection.includes(`\`${skill}\``)));
-
 const problems = [];
 const users = new Map();
 const wraps = new Set();
@@ -107,8 +102,8 @@ for (const skill of skills) {
     for (const term of TERMS) if (term.re.test(body)) used.add(term.key);
     if (body.split("\n").some(namesBareSkill)) used.add(ROUTE_KEY);
   }
-  if (used.size === 0 && !roleSkills.has(skill)) continue;
-  if (!/^# /m.test(text(skillMd))) problems.push(`${skillMd} needs the adapter line but has no H1`);
+  if (used.size === 0) continue;
+  if (!/^# /m.test(text(skillMd))) problems.push(`${skillMd} uses Cursor names but has no H1`);
   wraps.add(skill);
   for (const key of used) users.set(key, [...(users.get(key) ?? []), skill]);
 }

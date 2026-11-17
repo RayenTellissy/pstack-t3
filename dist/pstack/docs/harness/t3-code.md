@@ -58,7 +58,7 @@ The effort is the last token. Add `fast` after it to set `fastMode: true` where 
 
 ### Default roles
 
-These are pstack's defaults in T3 Code. They replace every default model slug written in the skills, including `poteto-mode`'s Subagents section, `arena`, `swarm`, `interrogate`, and the `model:` line in `poteto-agent`. A line in `~/.pstack/t3-models.md` overrides its role here.
+These are pstack's defaults in T3 Code. They replace the default model slugs written in the skills, including `poteto-mode`'s Subagents section, `arena`, `swarm`, `interrogate`, and the `model:` line in `poteto-agent`. They change only which model a step runs on, never how the skill runs. A line in `~/.pstack/t3-models.md` overrides its role here.
 
 ```
 feature, refactoring: opus high
@@ -80,23 +80,11 @@ architect runners: opus xhigh, fable medium
 interrogate reviewers: opus xhigh, fable medium
 ```
 
-### Where each role applies
+### Which roles the skills read
 
-The skills read some of these roles themselves. For the rest, spawn as this table says.
+The skills read `feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb`, `judgment and prose`, `swarm workers`, `arena runners`, `arena cross-judge pool`, and `interrogate reviewers`, and use each exactly as they say. These values only change which model runs.
 
-| Role | Used for |
-| --- | --- |
-| `feature, refactoring`, `bug-fix`, `perf-issue`, `hillclimb` | `poteto-mode` code delegates for that playbook, as the skill says. |
-| `judgment and prose` | `poteto-mode` prose and judgment delegates. |
-| `hardest tasks` | Where `poteto-mode` says to raise a role a step for the hardest or subtlest work, run that delegate on `hardest tasks` instead. |
-| `swarm workers` | `swarm` workers, verification, and trivial mechanical edits, as the skills say. |
-| `arena runners`, `interrogate reviewers` | One child per entry, as `arena` and `interrogate` say. |
-| `arena cross-judge pool` | The `arena` judge: the first entry from a vendor other than the parent's. When every entry shares the parent's vendor, use the first entry and say the judge is not cross-vendor. |
-| `how explorer`, `how explainer` | `how` step 1 runs as two children. The explorer (`role: "research"`, no edits) maps the files, entry points, and runtime flow behind the question and returns paths with line numbers and short excerpts. The explainer gets the question, the explorer's report, and the step 1 brief, reads what it needs, and writes the explanation. For a question one file answers, skip the explorer. |
-| `why investigators`, `why synthesizer` | `why` delegates. Spawn one investigator per lead (the change that introduced the target, each later change that altered it, outside sources when the trail is thin), each told to return quoted, cited evidence and no conclusion. Then one synthesizer gets the question and every report and writes the answer under the skill's rules. A target with one short trail skips the investigators. |
-| `reflect tooling` | `reflect`: one child reads the transcript (`t3_thread_read` with `view: "activity"`, paging back through `earlierPosition`) and returns candidate findings with quotes, plus the skills the session used. |
-| `reflect judgment, divergent, synthesizer` | `reflect`: a judgment child applies the skill's keep and drop rules to the candidates; a divergent child argues for the strongest dropped candidates and for skills that should have fired; a synthesizer merges both into Accepted, Rejected, and Backlog. You present that and wait for approval. |
-| `architect runners` | `architect`: one child per entry sketches one of the two shapes, each told to differ from the other on types, signatures, or module boundaries. You pick between them by the skill's rule. The large-design path still goes to `arena`. |
+`hardest tasks`, `how explorer`, `how explainer`, `why investigators`, `why synthesizer`, `reflect tooling`, `reflect judgment, divergent, synthesizer`, and `architect runners` are roles upstream pstack retired. No skill reads them, so they have no effect. Do not change how a skill runs to use them.
 
 ### Mapping Cursor slugs
 

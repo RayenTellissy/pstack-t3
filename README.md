@@ -46,7 +46,7 @@ architect runners: opus xhigh, fable medium
 interrogate reviewers: opus xhigh, fable medium
 ```
 
-Upstream retired the `hardest tasks`, `how`, `why`, `reflect`, and `architect` roles, and those skills now run inline or as one subagent. The adapter brings them back as T3 Code delegations: `how` explores on Haiku and explains on Opus, `why` fans out investigators and synthesizes, `reflect` splits mining from judgment, and `architect` sketches its two shapes on two runners. See "Where each role applies" in [`t3/adapter.md`](t3/adapter.md).
+These change only which model a step runs on; every skill runs exactly as upstream wrote it. The `hardest tasks`, `how`, `why`, `reflect`, and `architect` lines are roles upstream pstack retired, so no skill reads them and they have no effect today.
 
 Not ported: the benny automation pack (it is built on Cursor Automations and Slack; `schedule_task` webhooks could host it later) and Bugbot-specific steps, which the adapter skips with a one-line note.
 
