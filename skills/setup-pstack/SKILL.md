@@ -39,7 +39,7 @@ The default panels (`arena runners`, `arena cross-judge pool`, `interrogate revi
 
 ### 4. Validate
 
-Every real entry must be in the detected set, at an effort its model lists and at `xhigh` or below, or at `default` when its model has no effort option. A trailing `fast` is valid only on a model that lists `fastMode`. If one is not, stop and ask again.
+Every real entry must be in the detected set, at an effort its model lists and at `xhigh` or below, or at `default` when its model has no effort option. A trailing `fast` is valid only on a model that lists `fastMode` or `serviceTier`. If one is not, stop and ask again.
 
 ### 5. Write the file
 
