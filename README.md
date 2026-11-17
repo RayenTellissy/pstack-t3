@@ -47,7 +47,7 @@ Not ported: the benny automation pack (it is built on Cursor Automations and Sla
 Requires Node 20 or later.
 
 ```bash
-git clone <this repo> pstack-t3
+git clone https://github.com/RayenTellissy/pstack-t3.git
 cd pstack-t3
 node scripts/install.mjs
 ```
