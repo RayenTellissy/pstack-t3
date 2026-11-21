@@ -1,0 +1,56 @@
+name: upstream pstack
+# Every Monday, open an issue listing new commits to pstack in cursor/plugins, so they can be ported.
+# The newest commit already reported is kept in a hidden marker in the last upstream-pstack issue.
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+    inputs:
+      since:
+        description: Report commits after this full upstream SHA instead of the last reported one
+        required: false
+permissions:
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SINCE: ${{ inputs.since }}
+      BASELINE: 0b46ec399d55f2829e88822998f53b84944837d3
+    steps:
+      - name: Report new upstream commits
+        run: |
+          set -euo pipefail
+          last="${SINCE:-}"
+          if [ -z "$last" ]; then
+            last=$(gh issue list --label upstream-pstack --state all --limit 1 --json body -q '.[0].body // ""' \
+              | grep -oE 'upstream-head: [0-9a-f]{40}' | cut -d' ' -f2 || true)
+          fi
+          last="${last:-$BASELINE}"
+
+          gh api 'repos/cursor/plugins/commits?path=pstack&per_page=100' > commits.json
+          jq --arg last "$last" '(map(.sha) | index($last)) as $i | if $i == null then . else .[:$i] end' commits.json > new.json
+          count=$(jq length new.json)
+          if [ "$count" -eq 0 ]; then
+            echo "No new pstack commits after $last."
+            exit 0
+          fi
+
+          head=$(jq -r '.[0].sha' new.json)
+          {
+            echo "The original pstack has $count new commit(s) since \`${last:0:7}\`. Review them and port the ones that apply."
+            echo
+            jq -r '.[] | "- [`\(.sha[0:7])`](\(.html_url)) \(.commit.author.date[0:10]) \(.commit.message | split("\n")[0])"' new.json
+            if ! jq -e --arg last "$last" 'map(.sha) | index($last)' commits.json > /dev/null; then
+              echo
+              echo "The last reported commit was not in the newest 100, so older commits may be missing."
+            fi
+            echo
+            echo "<!-- upstream-head: $head -->"
+          } > body.md
+
+          gh label create upstream-pstack --color 0E8A16 --description "New commits in the original pstack" 2>/dev/null || true
+          gh issue create --label upstream-pstack \
+            --title "Port upstream pstack: $count new commit(s) through ${head:0:7}" --body-file body.md
