@@ -18,7 +18,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       SINCE: ${{ inputs.since }}
-      BASELINE: 0b46ec399d55f2829e88822998f53b84944837d3
+      BASELINE: 9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc
     steps:
       - name: Report new upstream commits
         run: |
